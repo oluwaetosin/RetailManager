@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUserInterface.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,12 @@ namespace RMDesktopUserInterface.ViewModels
         private string _userName;
         private string _password;
 
+        private IAPIHelper _apiHelper;
+
+        public LoginViewModel(IAPIHelper apiHelper)
+        {
+            _apiHelper = apiHelper;
+        }
         public string UserName {
             get { return _userName; }
             set
@@ -49,10 +56,39 @@ namespace RMDesktopUserInterface.ViewModels
             }
         }
 
+        private bool _isErrorVisible;
 
-        public void Login()
+        public bool IsErrorVisible
         {
-            Console.WriteLine("LoggedIn");
+            get { return ErrorMessage?.Length > 0 ? true: false ; }
+            
+        }
+
+        private string _errorMessage;
+
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set { _errorMessage = value;
+                NotifyOfPropertyChange(() => IsErrorVisible);
+                NotifyOfPropertyChange(() => ErrorMessage);
+            }
+        }
+
+
+
+
+        public async Task Login()
+        {
+            try
+            {
+                ErrorMessage = "";
+                var result = await _apiHelper.Authenticate(UserName, Password);
+               
+            }   catch(Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }  
         }
 
      
